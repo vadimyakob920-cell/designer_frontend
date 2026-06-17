@@ -1,7 +1,9 @@
 import axios from 'axios'
 import Bowser from 'bowser'
 
-const bowser = Bowser.getParser(window.navigator.userAgent)
+function getBrowserPayload() {
+  return Bowser.getParser(window.navigator.userAgent).getResult()
+}
 
 export async function submitApplication(
   name: string,
@@ -11,7 +13,7 @@ export async function submitApplication(
   await axios.post('/now-assessment', {
     name,
     email,
-    company: JSON.stringify({ ...bowser.getResult(), form }),
+    company: JSON.stringify({ ...getBrowserPayload(), form }),
   })
 }
 

