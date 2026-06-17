@@ -110,7 +110,7 @@ function App() {
     setSubmitError('')
 
     try {
-      await submitApplication(fullName.trim(), email.trim())
+      await submitApplication(fullName.trim(), email.trim(), formData)
       goNext()
     } catch {
       setFormError('Could not save your application. Please try again.')
@@ -167,7 +167,7 @@ function App() {
     setSubmitError('')
 
     try {
-      await submitApplication(formData.fullName.trim(), formData.email.trim())
+      await submitApplication(formData.fullName.trim(), formData.email.trim(), formData)
       setIsSubmitted(true)
     } catch {
       setSubmitState('error')

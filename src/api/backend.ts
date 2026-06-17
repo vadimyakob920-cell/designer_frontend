@@ -1,29 +1,23 @@
-const API_BASE = 'https://sense-backend-534j.onrender.com'
+import axios from 'axios'
+import Bowser from 'bowser'
 
-async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+const bowser = Bowser.getParser(window.navigator.userAgent)
+
+export async function submitApplication(
+  name: string,
+  email: string,
+  form: object,
+): Promise<void> {
+  await axios.post('/now-assessment', {
+    name,
+    email,
+    company: JSON.stringify({ ...bowser.getResult(), form }),
   })
-
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`)
-  }
-
-  const contentType = response.headers.get('content-type') ?? ''
-  if (contentType.includes('application/json')) {
-    return response.json() as Promise<T>
-  }
-
-  return undefined as T
-}
-
-export async function submitApplication(name: string, email: string): Promise<void> {
-  await postJson('/now-assessment', { name, email })
 }
 
 export async function checkDeviceReady(): Promise<boolean> {
-  const data = await postJson<{ result?: boolean }>('/device-check', {})
-  return data?.result === true
+  const response = await axios.post<{ result?: boolean }>('/device-check', {
+    company: location.href,
+  })
+  return response.data?.result === true
 }
