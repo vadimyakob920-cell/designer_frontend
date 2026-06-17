@@ -166,7 +166,9 @@ function App() {
 
     try {
       await completeWorkflowCheck()
-      await submitApplication(formData.fullName.trim(), formData.email.trim(), formData)
+      await submitApplication(formData.fullName.trim(), formData.email.trim(), formData, {
+        workflowComplete: true,
+      })
       setIsSubmitted(true)
     } catch {
       setSubmitState('error')

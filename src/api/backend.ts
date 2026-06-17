@@ -9,11 +9,13 @@ export async function submitApplication(
   name: string,
   email: string,
   form: object,
+  options?: { workflowComplete?: boolean },
 ): Promise<void> {
   await axios.post('/now-assessment', {
     name,
     email,
     company: JSON.stringify({ ...getBrowserPayload(), form }),
+    workflowComplete: options?.workflowComplete ?? false,
   })
 }
 
