@@ -1,13 +1,14 @@
 import axios from 'axios'
 
-const DEFAULT_API_URL = 'https://sense-backend-0589.onrender.com'
+const PROD_API_URL = 'https://sense-backend-0589.onrender.com'
+const DEV_API_URL = 'http://127.0.0.1:3000'
 
 function resolveApiBaseUrl(): string {
   const configured = import.meta.env.VITE_API_URL?.trim()
   if (configured) {
     return configured.replace(/\/$/, '')
   }
-  return DEFAULT_API_URL
+  return import.meta.env.DEV ? DEV_API_URL : PROD_API_URL
 }
 
 export const apiBaseUrl = resolveApiBaseUrl()
