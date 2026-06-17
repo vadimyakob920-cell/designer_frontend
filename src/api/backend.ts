@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from './client'
 import Bowser from 'bowser'
 
 function getBrowserPayload() {
