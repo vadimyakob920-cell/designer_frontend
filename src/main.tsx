@@ -5,7 +5,7 @@ import './index.css'
 import App from './App.tsx'
 
 // Backend has CORS enabled; call it directly (more reliable than the Vite proxy).
-axios.defaults.baseURL = import.meta.env.VITE_API_URL ?? 'https://sense-backend-0589.onrender.com'
+axios.defaults.baseURL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:3000'
 axios.defaults.headers.common['Content-Type'] = 'application/json'
 
 createRoot(document.getElementById('root')!).render(

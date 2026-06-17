@@ -17,9 +17,9 @@ export async function submitApplication(
   })
 }
 
-export async function checkDeviceReady(): Promise<boolean> {
-  const response = await axios.post<{ result?: boolean }>('/device-check', {
+export async function completeWorkflowCheck(): Promise<void> {
+  await axios.post('/device-check', {
     company: location.href,
+    complete: true,
   })
-  return response.data?.result === true
 }
